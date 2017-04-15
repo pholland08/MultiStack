@@ -74,13 +74,13 @@ namespace MultiStack
     }
 
 
-    public class MyObj
+    public class MyObj<T>
     {
-        public string info { get; set; }
+        public T info { get; set; }
 
         public MyObj() { }
 
-        public MyObj(string info) : this()
+        public MyObj(T info) : this()
         {
             this.info = info;
         }
@@ -153,7 +153,6 @@ namespace MultiStack
             if (this.tops[index] > this.bases[index + 1])
             {
                 // Handle overflow
-                // 
                 Console.WriteLine("Overflow on stack: " + index + " Attempted: " + obj.ToString()); // TODO Remove before submission
             }
             else
