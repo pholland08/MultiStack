@@ -29,8 +29,17 @@ namespace MultiStack
             return list_head;
         }
 
-        public enum indexes : int
+        public static int MyFloor(double num)
         {
+            int temp = (Int32)num;
+            if ((float)temp <= num)
+            {
+                return temp;
+            }
+            else
+            {
+                return temp - 1;
+            }
 
         }
     }

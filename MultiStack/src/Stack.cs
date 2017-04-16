@@ -149,7 +149,7 @@ namespace MultiStack
             // Initialize base and top locations
             for (int i = 1; i < this.bases.Length; i++)
             {
-                this.bases[i] = this.tops[i] = this.oldTops[i] = Convert.ToInt32(Math.Floor(((i - 1d) / num_stacks) * num_locations));
+                this.bases[i] = this.tops[i] = this.oldTops[i] = Convert.ToInt32(Helpers.MyFloor(((i - 1d) / num_stacks) * num_locations));
             }
         }
 
@@ -229,7 +229,7 @@ namespace MultiStack
             for (int i = 2; i < this.num_stacks; i++)
             {
                 double tau = sigma + alpha + growth[i - 1] * beta;
-                NewBases[i] = (Int32)(NewBases[i - 1] + (tops[i - 1] - bases[i + 1]) + Math.Floor(tau) - Math.Floor(sigma));
+                NewBases[i] = (Int32)(NewBases[i - 1] + (tops[i - 1] - bases[i + 1]) + Helpers.MyFloor(tau) - Helpers.MyFloor(sigma));
                 sigma = tau;
             }
 
