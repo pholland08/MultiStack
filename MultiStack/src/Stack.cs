@@ -125,24 +125,31 @@ namespace MultiStack
         private int num_stacks { get; set; }
         private int num_locations { get; set; }
         private int[] bases;
+        private int[] NewBases;
         private int[] tops;
+        private int[] oldTops;
+        private int[] growth;
+        double EqualAllocate, GrowthAllocate, alpha, beta;
+        int SpaceAvail;
 
+
+
+        // TODO Enums for subscripts
 
         // Constructors -------------------------------------------------------------------------
-        // TODO Enums for subscripts
         private MultiStack() : base() { }
 
         public MultiStack(int num_stacks, int num_locations) : base(num_locations + 1)
         {
             this.Top = num_locations + 1;
             this.num_stacks = num_stacks;
-            this.bases = new int[this.num_stacks + 2];
-            this.tops = new int[this.num_stacks + 2];
+            this.bases = this.tops = this.oldTops = this.NewBases = new int[this.num_stacks + 2];
+            this.EqualAllocate = num_locations / num_stacks;
 
             // Initialize base and top locations
             for (int i = 1; i < this.bases.Length; i++)
             {
-                this.bases[i] = this.tops[i] = Convert.ToInt32(Math.Floor(((i - 1d) / num_stacks) * num_locations));
+                this.bases[i] = this.tops[i] = this.oldTops[i] = Convert.ToInt32(Math.Floor(((i - 1d) / num_stacks) * num_locations));
             }
         }
 
@@ -153,6 +160,7 @@ namespace MultiStack
             if (this.tops[index] > this.bases[index + 1])
             {
                 // Handle overflow
+                // TODO Implement Reallocate(index);
                 Console.WriteLine("Overflow on stack: " + index + " Attempted: " + obj.ToString()); // TODO Remove before submission
             }
             else
@@ -178,13 +186,63 @@ namespace MultiStack
         }
 
         // MoveStack and Reallocate -------------------------------------------------------------
+
+        // TODO build MoveStack
         private void movestack()
         {
-            // TODO build MoveStack
+
         }
-        private void reallocate()
+
+        // TODO build reallocate
+        private void reallocate(int target)
         {
-            // TODO build reallocate
+            SpaceAvail = this.bases[this.num_stacks + 1] - this.bases[0];
+            int TotalIncrease = 0;
+            int j = this.num_stacks;
+
+            while (j > 0)
+            {
+                this.SpaceAvail = this.SpaceAvail - (this.tops[j] - this.bases[j]);
+                if (this.tops[j] > this.oldTops[j])
+                {
+                    growth[j] = this.tops[j] - this.oldTops[j];
+                    TotalIncrease += growth[j];
+                }
+                else
+                {
+                    this.growth[j] = 0;
+                }
+                j--;
+            }
+
+            if (this.SpaceAvail < 0) // SpaceAvail < MinSpace - 1
+            {
+                // Report completely out of memory => terminate
+            }
+
+            this.GrowthAllocate = 1 - this.EqualAllocate;
+            this.alpha = this.EqualAllocate * this.SpaceAvail / this.num_stacks;
+            this.beta = this.GrowthAllocate * this.SpaceAvail / TotalIncrease;
+            this.NewBases[1] = this.bases[1];
+            double sigma = 0;
+
+            for (int i = 2; i < this.num_stacks; i++)
+            {
+                double tau = sigma + alpha + growth[i - 1] * beta;
+                NewBases[i] = (Int32)(NewBases[i - 1] + (tops[i - 1] - bases[i + 1]) + Math.Floor(tau) - Math.Floor(sigma));
+                sigma = tau;
+            }
+
+            this.tops[target]--;
+            // TODO Implement MoveStack()
+            this.tops[target]++;
+
+            // TODO push item that caused overflow
+
+            for (int i = 1; i < num_stacks; i++)
+            {
+                this.oldTops[i] = this.tops[i]; // TODO output oldTops
+            }
         }
     }
 }
