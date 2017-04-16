@@ -9,12 +9,15 @@ namespace MultiStack
 {
     class Program
     {
+
         static void Main(string[] args)
         {
-            //int start = -11;
-            //int last = 51;
-            //int count = (last - start) + 1;
-            //IEnumerable<int> subscripts = Enumerable.Range(start, count);
+
+
+
+
+            #region MainProcess
+            /*             
             int num_arrays = 4; // Number of sub_arrays
             int L0 = 4; // Lower bound
             int M = 20; // Upper bound
@@ -52,7 +55,9 @@ namespace MultiStack
                     default:
                         throw new InvalidDataException("Only (I)nsert and (D)elete are allowed.");
                 }
-            }
+            }*/
+            #endregion MainProcess
+
         }
     }
 }

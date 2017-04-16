@@ -78,7 +78,7 @@ namespace MultiStack
     {
         public T info { get; set; }
 
-        public MyObj() { }
+        private MyObj() { }
 
         public MyObj(T info) : this()
         {
