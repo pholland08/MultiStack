@@ -17,7 +17,7 @@ namespace MultiStack
 
 
             #region MainProcess
-            /*             
+
             int num_arrays = 4; // Number of sub_arrays
             int L0 = 4; // Lower bound
             int M = 20; // Upper bound
@@ -26,7 +26,7 @@ namespace MultiStack
             MyStack<InputObj> input_stack = new MyStack<InputObj>(input_data.target);
             input_data = input_data.next;
 
-            MultiStack<string> multiple = new MultiStack<string>(num_arrays, M-L0);
+            MultiStack<string> multiple = new MultiStack<string>(num_arrays, M - L0);
 
             while (input_data != null)
             {
@@ -55,7 +55,7 @@ namespace MultiStack
                     default:
                         throw new InvalidDataException("Only (I)nsert and (D)elete are allowed.");
                 }
-            }*/
+            }
             #endregion MainProcess
 
         }
