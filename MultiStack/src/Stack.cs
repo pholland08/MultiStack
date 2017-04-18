@@ -162,6 +162,7 @@ namespace MultiStack
                 // Handle overflow
                 // TODO Implement Reallocate(index);
                 Console.WriteLine("Overflow on stack: " + index + " Attempted: " + obj.ToString()); // TODO Remove before submission
+                reallocate(index);
             }
             else
             {
@@ -190,7 +191,22 @@ namespace MultiStack
         // TODO build MoveStack
         private void movestack()
         {
+            // Move stacks down if space exists
+            for (int i = 2; i <= this.num_stacks; i++)
+            {
+                if (this.NewBases[i] < this.bases[i])
+                {
+                    int delta = this.bases[i] - this.NewBases[i];
+                    for (int L = this.bases[i]+1; L <= this.tops[i]; L++)
+                    {
+                        this.stack_arr[L - delta] = this.stack_arr[L];
+                    }
+                    this.bases[i] = this.NewBases[i];
+                    this.tops[i] = this.tops[i - delta];
+                }
+            }
 
+            // Move stacks
         }
 
         // TODO build reallocate
@@ -218,6 +234,7 @@ namespace MultiStack
             if (this.SpaceAvail < 0) // SpaceAvail < MinSpace - 1
             {
                 // Report completely out of memory => terminate
+                Environment.Exit(500);
             }
 
             this.GrowthAllocate = 1 - this.EqualAllocate;
@@ -234,7 +251,7 @@ namespace MultiStack
             }
 
             this.tops[target]--;
-            // TODO Implement MoveStack()
+            this.movestack();
             this.tops[target]++;
 
             // TODO push item that caused overflow
