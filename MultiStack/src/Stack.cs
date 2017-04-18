@@ -206,7 +206,20 @@ namespace MultiStack
                 }
             }
 
-            // Move stacks
+            // Move stacks up if space exists
+            for (int i = this.num_stacks; i >= 2; i--)
+            {
+                if (this.NewBases[i] > this.bases[i])
+                {
+                    int delta = this.NewBases[i] - this.bases[i];
+                    for (int L = this.tops[i]; L <= this.bases[i]; L--)
+                    {
+                        this.stack_arr[L + delta] = this.stack_arr[L];
+                    }
+                    this.bases[i] = this.NewBases[i];
+                    this.tops[i] = this.tops[i] + delta;
+                }
+            }
         }
 
         // TODO build reallocate
