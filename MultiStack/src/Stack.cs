@@ -129,7 +129,10 @@ namespace MultiStack
         private int[] tops;
         private int[] oldTops;
         private int[] growth;
-        double EqualAllocate, GrowthAllocate, alpha, beta;
+        double EqualAllocate;
+        double GrowthAllocate;
+        double alpha;
+        double beta;
         int SpaceAvail;
 
 
@@ -142,47 +145,56 @@ namespace MultiStack
         public MultiStack(int num_stacks, int num_locations) : base(num_locations + 1)
         {
             this.Top = num_locations + 1;
+            this.num_locations = num_locations;
             this.num_stacks = num_stacks;
-            this.bases = this.tops = this.oldTops = this.NewBases = new int[this.num_stacks + 2];
+            this.bases = new int[this.num_stacks + 2];
+            this.tops = new int[this.num_stacks + 2];
+            this.oldTops = new int[this.num_stacks + 2];
+            this.NewBases = new int[this.num_stacks + 2];
+            this.growth = new int[this.num_stacks + 2];
             this.EqualAllocate = num_locations / num_stacks;
 
             // Initialize base and top locations
-            for (int i = 1; i < this.bases.Length; i++)
+            for (int i = 1; i <= this.num_stacks; i++)
             {
-                this.bases[i] = this.tops[i] = this.oldTops[i] = Convert.ToInt32(Helpers.MyFloor(((i - 1d) / num_stacks) * num_locations));
+                int current = Helpers.MyFloor((i - 1d) / num_stacks * num_locations);
+                Console.WriteLine(current);
+                this.bases[i] = current;
+                this.tops[i] = current;
+                this.oldTops[i] = current;
             }
+            this.bases[this.num_stacks + 1] = num_locations;
         }
 
         // Push and Pop -------------------------------------------------------------------------
-        public void push(int index, T obj)
+        public void push(int target, T obj)
         {
-            this.tops[index] += 1;
-            if (this.tops[index] > this.bases[index + 1])
+            this.tops[target] = this.tops[target] + 1;
+            if (this.tops[target] > this.bases[target + 1])
             {
                 // Handle overflow
-                // TODO Implement Reallocate(index);
-                Console.WriteLine("Overflow on stack: " + index + " Attempted: " + obj.ToString()); // TODO Remove before submission
-                reallocate(index);
+                Console.WriteLine("Overflow on stack: " + target + " Attempted: " + obj.ToString() + ". Beginning reallocation..."); // TODO Remove before submission
+                this.reallocate(target);
+                Console.WriteLine("Reallocation complete");
             }
-            else
-            {
-                this.stack_arr[this.tops[index]] = obj;
-                Console.WriteLine("Pushed " + obj.ToString() + " into " + index);
-            }
+            this.stack_arr[this.tops[target]] = obj;
+            Console.WriteLine("Pushed " + obj.ToString() + " into " + target);
+
         }
 
-        public T pop(int index)
+        public T pop(int target)
         {
-            if (this.tops[index] == this.bases[index])
+            if (this.tops[target] == this.bases[target])
             {
                 // Handle underflow
-                Console.WriteLine("Underflow on stack " + index);
+                Console.WriteLine("Underflow on stack " + this.tops[target]);
                 return default(T);
             }
             else
             {
-                this.tops[index] -= 1;
-                return stack_arr[this.tops[index] + 1];
+                T popped = stack_arr[this.tops[target]];
+                this.tops[target] = this.tops[target] - 1;
+                return popped;
             }
         }
 
@@ -197,7 +209,7 @@ namespace MultiStack
                 if (this.NewBases[i] < this.bases[i])
                 {
                     int delta = this.bases[i] - this.NewBases[i];
-                    for (int L = this.bases[i]+1; L <= this.tops[i]; L++)
+                    for (int L = (this.bases[i] + 1); L <= (this.tops[i]); L++)
                     {
                         this.stack_arr[L - delta] = this.stack_arr[L];
                     }
@@ -225,7 +237,7 @@ namespace MultiStack
         // TODO build reallocate
         private void reallocate(int target)
         {
-            SpaceAvail = this.bases[this.num_stacks + 1] - this.bases[0];
+            SpaceAvail = this.bases[(this.num_stacks + 1)] - this.bases[0];
             int TotalIncrease = 0;
             int j = this.num_stacks;
 
@@ -247,19 +259,21 @@ namespace MultiStack
             if (this.SpaceAvail < 0) // SpaceAvail < MinSpace - 1
             {
                 // Report completely out of memory => terminate
+                Console.WriteLine("All out of space!");
                 Environment.Exit(500);
             }
 
-            this.GrowthAllocate = 1 - this.EqualAllocate;
+            this.EqualAllocate = this.SpaceAvail / this.num_stacks;
+            this.GrowthAllocate = 1d - (this.EqualAllocate);
             this.alpha = this.EqualAllocate * this.SpaceAvail / this.num_stacks;
             this.beta = this.GrowthAllocate * this.SpaceAvail / TotalIncrease;
             this.NewBases[1] = this.bases[1];
             double sigma = 0;
 
-            for (int i = 2; i < this.num_stacks; i++)
+            for (int i = 2; i <= this.num_stacks; i++)
             {
-                double tau = sigma + alpha + growth[i - 1] * beta;
-                NewBases[i] = (Int32)(NewBases[i - 1] + (tops[i - 1] - bases[i + 1]) + Helpers.MyFloor(tau) - Helpers.MyFloor(sigma));
+                double tau = sigma + alpha + (growth[i - 1] * beta);
+                NewBases[i] = (Int32)(this.NewBases[i - 1] + (this.tops[i - 1] - this.bases[i - 1]) + Helpers.MyFloor(tau) - Helpers.MyFloor(sigma));
                 sigma = tau;
             }
 
