@@ -183,14 +183,14 @@ namespace MultiStack
                 // Handle overflow
                 Console.WriteLine("\nOverflow on stack " + target + ". Attempted: " + obj.ToString() + ".\nBeginning reallocation..."); // TODO Remove before submission
                 // TODO print contents of base[], top[], and oldtop[]
-                Console.WriteLine("\tIndex:" + Helpers.IndexesToString(1, NumStacks+1));
+                Console.WriteLine("\tStack:" + Helpers.IndexesToString(1, NumStacks+1));
                 Console.WriteLine("\tBase:" + Helpers.ArrayToString(bases, Shift));
                 Console.WriteLine("\tTop:" + Helpers.ArrayToString(tops, Shift));
                 Console.WriteLine("\tOldTop:" + Helpers.ArrayToString(oldTops, Shift));
                 reallocate(target);
                 // TODO print contents of base[] and top[]
                 Console.WriteLine("Reallocation complete");
-                Console.WriteLine("\tIndex:" + Helpers.IndexesToString(1, NumStacks+1));
+                Console.WriteLine("\tStack:" + Helpers.IndexesToString(1, NumStacks+1));
                 Console.WriteLine("\tBase:" + Helpers.ArrayToString(bases, Shift));
                 Console.WriteLine("\tTop:" + Helpers.ArrayToString(tops, Shift) + "\n");
             }
