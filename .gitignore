@@ -2,5 +2,4 @@
 !.gitignore
 !readme.md
 !MultiStack/src/*
-!MultiStack/src
-!MultiStack/src/*
+!MultiStack/input/*
