@@ -43,6 +43,26 @@ namespace MultiStack
 
         }
 
-       
+        public static string ArrayToString(int[] input, int Shift)
+        {
+            string output = "";
+            for (int i=1; i< input.Length; i++)
+            {
+                output += ("\t" + (input[i]-Shift));
+            }
+            return output;
+        }
+
+        public static string IndexesToString(int LBound, int UBound)
+        {
+            string output = "";
+            int current = LBound;
+            while (current <= UBound)
+            {
+                output += ("\t" + current);
+                current++;
+            }
+            return output;
+        }
     }
 }

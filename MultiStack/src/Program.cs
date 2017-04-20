@@ -17,14 +17,16 @@ namespace MultiStack
             #region MainProcess
 
             int num_arrays = 4; // Number of sub_arrays
-            int L0 = 4; // Lower bound
-            int M = 20; // Upper bound
+            int L0 = 4; // Usable lower bound
+            int LM = 20; // Usable upper bound
+            int LBound = -11; // Absolute lower bound
+            int UBound = 51; // Absolute upper bound
             //InputObj input_data = helpers.get_input("C:\\Users\\philliph\\workspace\\C#\\MultiStack\\MultiStack\\input\\BC_Input.txt");
             InputObj InputData = Helpers.get_input("C:\\Users\\philliph\\workspace\\C#\\MultiStack\\MultiStack\\input\\BC_Input_Reversed.txt");
             MyStack<InputObj> InputStack = new MyStack<InputObj>(InputData.target);
             InputData = InputData.next;
 
-            MultiStack<string> stacks = new MultiStack<string>(num_arrays, (M - L0));
+            MultiStack<string> stacks = new MultiStack<string>(num_arrays, L0, LM, LBound, UBound);
             
             while (InputData != null)
             {
