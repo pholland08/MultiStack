@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 
 namespace MultiStack
 {
@@ -35,10 +33,8 @@ namespace MultiStack
 
 
         //---------------------------------------------------------------------
-        //--- Methods
-        //---------------------------------------------------------------------
-
         // Push ---------------------------------------------------------------
+        //---------------------------------------------------------------------
         public void push(T obj)
         {
             if (top == Length)
@@ -56,7 +52,14 @@ namespace MultiStack
             }
         }
 
+
+
+
+
+
+        //---------------------------------------------------------------------
         // Pop ---------------------------------------------------------------
+        //---------------------------------------------------------------------
         public T pop()
         {
             if (top == 0)
@@ -129,21 +132,22 @@ namespace MultiStack
         private int L0 { get; set; }
         private int Shift { get; set; }
         private int[] bases;
-        private int[] NewBases;
+        private int[] Optimized;
         private int[] tops;
-        private int[] oldTops;
-        private int[] growth;
         double EqualAllocate;
         double GrowthAllocate;
         double alpha;
         double beta;
         int SpaceAvail;
+        int[] Growth;
+        int[] OldTop;
+        int[] NewBases;
 
 
+        //-----------------------------------------------------------------
+        // Constructors ---------------------------------------------------
+        //-----------------------------------------------------------------
 
-        // TODO Enums for subscripts
-
-        // Constructors -------------------------------------------------------------------------
         // No argument Constructor 
         private MultiStack() : base() { }
 
@@ -154,51 +158,61 @@ namespace MultiStack
             this.UBound = UBound;
             this.Shift = L0 - LBound;
             this.L0 = L0;
-            //Top = LM + 1;
             this.LM = LM - L0;
             this.NumStacks = NumStacks;
             bases = new int[this.NumStacks + 2];
             tops = new int[this.NumStacks + 2];
-            oldTops = new int[this.NumStacks + 2];
-            NewBases = new int[this.NumStacks + 2];
-            growth = new int[this.NumStacks + 2];
-            EqualAllocate = this.LM / NumStacks;
+            Optimized = Growth = OldTop = NewBases = new int[this.NumStacks + 2];
+            EqualAllocate = .15d;
 
             // Initialize base and top locations
             for (int i = 1; i <= this.NumStacks; i++)
             {
                 int current = Helpers.MyFloor((i - 1d) / NumStacks * this.LM) + this.L0 + Shift;
                 Console.WriteLine(current);
-                bases[i] = tops[i] = oldTops[i] = current;
+                bases[i] = tops[i] = Optimized[i] = current;
             }
-            bases[this.NumStacks + 1] = tops[this.NumStacks + 1] = oldTops[this.NumStacks + 1] = this.LM + this.L0 + Shift;
+            bases[this.NumStacks + 1] = tops[this.NumStacks + 1] = Optimized[this.NumStacks + 1] = this.LM + this.L0 + Shift;
         }
 
-        // Push and Pop -------------------------------------------------------------------------
+        //-----------------------------------------------------------------
+        // Push -----------------------------------------------------------
+        //-----------------------------------------------------------------
         public void push(int target, T obj)
         {
             tops[target] += 1;
             if (tops[target] > bases[target + 1])
             {
                 // Handle overflow
-                Console.WriteLine("\nOverflow on stack " + target + ". Attempted: " + obj.ToString() + ".\nBeginning reallocation..."); // TODO Remove before submission
-                // TODO print contents of base[], top[], and oldtop[]
-                Console.WriteLine("\tStack:" + Helpers.IndexesToString(1, NumStacks+1));
+                Console.WriteLine("\nOverflow on stack " + target + ". Attempted: " + obj.ToString() + ".\nBeginning reallocation...");
+
+                // Print contents of base[], top[], and oldtop[]
+                Console.WriteLine("\tStack:" + Helpers.IndexesToString(1, NumStacks + 1));
                 Console.WriteLine("\tBase:" + Helpers.ArrayToString(bases, Shift));
                 Console.WriteLine("\tTop:" + Helpers.ArrayToString(tops, Shift));
-                Console.WriteLine("\tOldTop:" + Helpers.ArrayToString(oldTops, Shift));
-                reallocate(target);
-                // TODO print contents of base[] and top[]
+                Console.WriteLine("\tOldTop:" + Helpers.ArrayToString(OldTop, Shift));
+
+                // Perform reallocation algorithm
+                reallocate(target, obj);
+
+                // Print contents of base[] and top[]
                 Console.WriteLine("Reallocation complete");
-                Console.WriteLine("\tStack:" + Helpers.IndexesToString(1, NumStacks+1));
+                Console.WriteLine("\tStack:" + Helpers.IndexesToString(1, NumStacks + 1));
                 Console.WriteLine("\tBase:" + Helpers.ArrayToString(bases, Shift));
                 Console.WriteLine("\tTop:" + Helpers.ArrayToString(tops, Shift) + "\n");
             }
-            StackSpace[tops[target]] = obj;
-            Console.WriteLine("Pushed " + obj.ToString() + " into " + target);
+            else
+            {
+                StackSpace[tops[target]] = obj;
+                Console.WriteLine("Pushed " + obj.ToString() + " into " + target);
+            }
 
         }
 
+
+        //-----------------------------------------------------------------
+        // Pop ------------------------------------------------------------
+        //-----------------------------------------------------------------
         public T pop(int target)
         {
             if (tops[target] == bases[target])
@@ -215,7 +229,9 @@ namespace MultiStack
             }
         }
 
-        // MoveStack and Reallocate -------------------------------------------------------------
+        //-----------------------------------------------------------------
+        // MoveStack ------------------------------------------------------
+        //-----------------------------------------------------------------
 
         private void movestack()
         {
@@ -236,6 +252,7 @@ namespace MultiStack
                 }
             }
 
+
             // Move stacks up if space exists
             for (int j = NumStacks; j >= 2; j--)
             {
@@ -252,43 +269,43 @@ namespace MultiStack
             }
         }
 
-        private void reallocate(int target)
+        //-----------------------------------------------------------------
+        // Reallocate -----------------------------------------------------
+        //-----------------------------------------------------------------
+        private void reallocate(int target, T obj)
         {
-            SpaceAvail = bases[(NumStacks + 1)] - bases[1];
+            SpaceAvail = LM - L0;
             int TotalIncrease = 0;
             int j = NumStacks;
 
             while (j > 0)
             {
                 SpaceAvail = SpaceAvail - (tops[j] - bases[j]);
-                if (tops[j] > oldTops[j])
+                if (tops[j] > OldTop[j])
                 {
-                    growth[j] = tops[j] - oldTops[j];
-                    TotalIncrease += growth[j];
+                    Growth[j] = tops[j] - OldTop[j];
+                    TotalIncrease += Growth[j];
                 }
                 else
                 {
-                    growth[j] = 0;
+                    Growth[j] = 0;
                 }
                 j--;
             }
 
-            double MinSpace = (LM - 1) * .05;
-            if (SpaceAvail < MinSpace) // SpaceAvail < MinSpace - 1
+            double MinSpace = (LM - (L0 + 1)) * .05d;
+            if (SpaceAvail < MinSpace)
             {
                 // Report completely out of memory => terminate
                 Console.WriteLine("All out of space!\n");
-                DateTime wait = System.DateTime.Now.AddSeconds(.5);
-                while (System.DateTime.Now < wait)
+                int i = 1;
+                while (i<300000000)
                 {
-                    int pause = 1 + 1;
-                    pause++;
+                    i++;
                 }
                 Environment.Exit(500);
             }
 
-            //this.EqualAllocate = this.SpaceAvail / this.num_stacks;
-            EqualAllocate = .15d;
             GrowthAllocate = 1d - EqualAllocate;
             alpha = EqualAllocate * SpaceAvail / NumStacks;
             beta = GrowthAllocate * SpaceAvail / TotalIncrease;
@@ -297,20 +314,28 @@ namespace MultiStack
 
             for (int i = 2; i <= NumStacks; i++)
             {
-                double tau = sigma + alpha + (growth[i - 1] * beta);
+                double tau = sigma + alpha + (Growth[i - 1] * beta);
                 NewBases[i] = (NewBases[i - 1] + (tops[i - 1] - bases[i - 1]) + Helpers.MyFloor(tau) - Helpers.MyFloor(sigma));
                 sigma = tau;
             }
 
+            // Decrement the top of the item that triggered overflow
             tops[target] -= 1;
+
+            // Perform repacking
             movestack();
+
+            // Re-increment the item that triggered overflow
             tops[target] += 1;
 
-            // TODO push item that caused overflow
+            // Push the item that caused overflow
+            StackSpace[tops[target]] = obj;
+            Console.WriteLine("Pushed " + obj.ToString() + " into " + target);
 
+            // Prepare OldTop for potential next overflow
             for (int i = 1; i < NumStacks; i++)
             {
-                oldTops[i] = tops[i];
+                OldTop[i] = tops[i];
             }
         }
     }
